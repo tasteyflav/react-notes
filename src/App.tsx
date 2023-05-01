@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container } from 'react-bootstrap';
 import { Routes, Route, Navigate } from 'react-router-dom';
@@ -9,6 +9,7 @@ import { Note } from "./Note";
 import  EditNote  from "./EditNote";
 import { useLocalStorage } from './useLocalStorage';
 import { v4 as uuidV4} from 'uuid';
+import { useAuth } from "./context/AuthContext";
 
 export type Note = {
   id: string;
@@ -38,6 +39,12 @@ export type Tag = {
 function App() {
     const [notes, setNotes] = useLocalStorage<RawNote[]>("NOTES", [])
     const [tags, setTags] = useLocalStorage<Tag[]>("TAGS", [])
+
+    const { user, signInAnon } = useAuth();
+    if (!user) {
+        signInAnon();
+    }
+    
 
     const notesWithTags = useMemo(() => {
         return notes.map(note => {
@@ -91,7 +98,9 @@ function App() {
         })
     }
 
-console.log(notes);
+    if(!user) {
+        return <h1>Loading...</h1>
+    }
   return (
     <Container className='my-4'>
       <Routes>
